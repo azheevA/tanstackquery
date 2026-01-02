@@ -1,26 +1,24 @@
-import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { getTodoApi } from "../../shared/api/api"
+import { useInfiniteQuery} from "@tanstack/react-query"
+import { getTodoApi} from "./api"
 import { useCallback, useRef, useState } from "react"
 
 export function TodoList(){
     
     const [enabled, setEnabled] = useState(false);
     const {data: todoItems, error, isLoading, isPlaceholderData, fetchNextPage, hasNextPage, isFetchingNextPage} = useInfiniteQuery({
-        queryKey: ['tasks', 'list'],
-        queryFn: (meta)=> getTodoApi.getTodoList({page: meta.pageParam},meta),
-        initialPageParam: 1,
-        getNextPageParam: (result) => result.next,
-        select: result => result.pages.map(page => page.data).flat(),
+            ...getTodoApi.getTodoListInfinityQueryOptions(),
+            enabled: enabled,
         })
      const cursorRef = useIntersection(()=>{
         fetchNextPage()
     })
 
     if(isLoading){ //status === "pending" && fetchStatus === "fetching"
-        return 
+        return (
         <div className="w-screen flex justify-center text-4xl">
             Loading
-            </div>
+        </div>
+        )
     }    
     if(error){
         return <div>error: {JSON.stringify(error)}</div>
@@ -33,7 +31,7 @@ export function TodoList(){
             <h1 className="text-3xl underline font-bold m-10">TodoList</h1>
                 <div className={"flex flex-col gap-5 " + (isPlaceholderData?'opacity-50':'')}>
                     {todoItems?.map(todo => 
-                    (<div key={todo.id} className="text-2xl text-[#9872c9] px-20 py-3  border-slate-500 border-2 rounded flex justify-center items-center ">
+                    (<div key={todo.id} className="text-2xl text-[#9872c9] px-20 py-3 w-140 border-slate-500 border-2 rounded flex justify-center items-center text-center">
                         {todo.text}
                         </div>))}
                         
